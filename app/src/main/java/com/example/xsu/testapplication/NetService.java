@@ -3,7 +3,10 @@ package com.example.xsu.testapplication;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -13,6 +16,7 @@ import java.net.Socket;
 
 public class NetService extends Service {
 
+    private Handler handler;
     private NetBinder netBinder;
     private Socket socket;
     private InputStream inputStream;
@@ -44,7 +48,11 @@ public class NetService extends Service {
                         if (len != 0 ) {
                             byte[] result = new byte[len];
                             System.arraycopy(temp, 0, result, 0, len);
-                            Log.e("message", new String(result));
+                            Bundle bundle = new Bundle();
+                            bundle.putString("message", new String(result));
+                            Message message = new Message();
+                            message.setData(bundle);
+                            handler.sendMessage(message);
                         }
                     }
                 } catch (Exception e) {
@@ -59,6 +67,10 @@ public class NetService extends Service {
 
         public void connect(String ip, int port) {
             NetService.this.connect(ip, port);
+        }
+
+        public void setHandler(Handler handler) {
+            NetService.this.handler = handler;
         }
     }
 }
